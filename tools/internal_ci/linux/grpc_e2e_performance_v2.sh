@@ -64,7 +64,7 @@ go get "golang.org/dl/${TEST_INFRA_GOVERSION}"
 
 # Clone test-infra repository to one upper level directory than grpc.
 pushd ..
-git clone --recursive https://github.com/grpc/test-infra.git
+git clone --recursive --single-branch --branch save-driver-logs git@github.com:brandonpaiz/test-infra
 cd test-infra
 make GOCMD="${TEST_INFRA_GOVERSION}" all-tools
 popd
@@ -126,3 +126,6 @@ time ../test-infra/bin/runner \
     -i "../grpc/loadtest_with_prebuilt_workers_${WORKER_POOL_32CORE}.yaml" \
     -c "${WORKER_POOL_8CORE}:2" -c "${WORKER_POOL_32CORE}:2" \
     -o "runner/sponge_log.xml"
+
+# TODO: Remove debugging below
+ls runner
