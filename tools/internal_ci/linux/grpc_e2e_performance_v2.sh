@@ -64,7 +64,7 @@ go get "golang.org/dl/${TEST_INFRA_GOVERSION}"
 
 # Clone test-infra repository to one upper level directory than grpc.
 pushd ..
-git clone --recursive --single-branch --branch save-driver-logs git@github.com:brandonpaiz/test-infra
+git clone --recursive --single-branch --branch save-driver-logs https://github.com/brandonpaiz/test-infra.git
 cd test-infra
 make GOCMD="${TEST_INFRA_GOVERSION}" all-tools
 popd
