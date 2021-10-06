@@ -129,5 +129,5 @@ time ../test-infra/bin/runner \
     -o "runner/sponge_log.xml"
 
 # TODO: Remove debugging below
-ls runner
-ls **/*.log
+ls -R runner
+ls **/pod_logs/**
