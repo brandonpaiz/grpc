@@ -64,7 +64,7 @@ go get "golang.org/dl/${TEST_INFRA_GOVERSION}"
 
 # Clone test-infra repository to one upper level directory than grpc.
 pushd ..
-git clone --recursive --single-branch --branch save-pod-logs https://github.com/brandonpaiz/test-infra.git
+git clone --recursive --single-branch --branch store-pod-logs https://github.com/brandonpaiz/test-infra.git
 cd test-infra
 make GOCMD="${TEST_INFRA_GOVERSION}" all-tools
 popd
@@ -130,4 +130,3 @@ time ../test-infra/bin/runner \
 
 # TODO: Remove debugging below
 ls -R runner
-ls **/pod_logs/**
