@@ -97,7 +97,7 @@ buildConfigs() {
         -a pool="${pool}" --category=scalable \
         --allow_client_language=c++ --allow_server_language=c++ \
         -o "./loadtest_with_prebuilt_workers_${pool}.yaml" \
-        -r java_generic_async_streaming_ping_pong_secure
+        -r java_protobuf_async_unary_qps_unconstrained_secure
 }
 
 buildConfigs "${WORKER_POOL_8CORE}" "${BIGQUERY_TABLE_8CORE}" -l java
