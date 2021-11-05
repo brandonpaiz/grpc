@@ -94,7 +94,7 @@ buildConfigs() {
         --prefix="${LOAD_TEST_PREFIX}" -u "${UNIQUE_IDENTIFIER}" -u "${pool}" \
         -a pool="${pool}" --category=scalable \
         --allow_client_language=c++ --allow_server_language=c++ \
-        -o "./loadtest_with_prebuilt_workers_${pool}.yaml"
+        -o "./loadtest_with_prebuilt_workers_${pool}.yaml" \
         -r java-generic-async-streaming-ping-pong-secure
 }
 
