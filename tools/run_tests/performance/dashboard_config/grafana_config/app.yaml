@@ -1,0 +1,25 @@
+runtime: custom
+env: flexible
+service: ${GCP_GRAFANA_SERVICE}
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 2
+resources:
+  cpu: 1
+  memory_gb: 1
+beta_settings:
+  cloud_sql_instances: ${CLOUD_SQL_INSTANCE}=tcp:5432
+liveness_check:
+  path: "/"
+readiness_check:
+  path: "/"
+env_variables:
+  GCP_PROJECT_ID: ${GCP_PROJECT_ID}
+  GCP_GRAFANA_SERVICE: ${GCP_GRAFANA_SERVICE}
+  GCP_DATA_TRANSFER_SERVICE: ${GCP_DATA_TRANSFER_SERVICE}
+  BQ_PROJECT_ID: ${BQ_PROJECT_ID}
+  PG_USER: ${PG_USER}
+  PG_PASS: ${PG_PASS}
+  PG_DATABASE: ${PG_DATABASE}
+  GRAFANA_ADMIN_PASS: ${GRAFANA_ADMIN_PASS}
+  CLOUD_SQL_INSTANCE: ${CLOUD_SQL_INSTANCE}
