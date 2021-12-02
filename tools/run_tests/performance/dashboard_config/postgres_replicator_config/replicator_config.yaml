@@ -5,7 +5,7 @@ postgres:
   dbHost: 172.17.0.1
   dbPort: 5432
   dbUser: ${PG_USER}
-  dbPass: ${PG_PASS}
+  dbPass:
   dbName: ${PG_DATABASE}
 
 transfer:
