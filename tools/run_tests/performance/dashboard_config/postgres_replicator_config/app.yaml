@@ -13,3 +13,5 @@ liveness_check:
   path: "/"
 readiness_check:
   path: "/"
+env_variables:
+  PG_PASS: ${PG_PASS}
