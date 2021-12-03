@@ -30,10 +30,8 @@ substitute_env_in_files () {
 # Check required environment variables
 check_env GCP_PROJECT_ID GCP_GRAFANA_SERVICE GCP_DATA_TRANSFER_SERVICE BQ_PROJECT_ID PG_USER PG_PASS PG_DATABASE GRAFANA_ADMIN_PASS CLOUD_SQL_INSTANCE || exit 1
 
-# Copy postgres replicator and grafana template
-git clone --depth 1 https://github.com/grpc/test-infra
-
 # Configure postgres replicator
+git clone --depth 1 https://github.com/grpc/test-infra
 mkdir postgres_replicator
 mv test-infra postgres_replicator
 cp postgres_replicator_config/* postgres_replicator
