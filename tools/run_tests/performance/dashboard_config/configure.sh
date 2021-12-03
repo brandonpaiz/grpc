@@ -40,10 +40,8 @@ mv test-infra postgres_replicator
 cp postgres_replicator_config/* postgres_replicator
 
 # Configure grafana
-#TODO: delete the below line once grafana template in test-infra
-git clone --branch database_migrator --depth 1 https://github.com/brandonpaiz/test-infra
-cp -r test-infra/tools/grafana .
-cp -r grafana_config/** grafana
+mkdir grafana
+cp -r grafana_config/* grafana
 
 # Substitute environment variables
 substitute_env_in_files \
