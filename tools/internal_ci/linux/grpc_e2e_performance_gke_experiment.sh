@@ -129,4 +129,5 @@ time ../test-infra/bin/runner \
     -polling-interval 5s \
     -delete-successful-tests \
     -c "${WORKER_POOL_8CORE}:2" -c "${WORKER_POOL_32CORE}:2" \
-    -o "runner/sponge_log.xml"
+    -o "runner/sponge_log.xml" \
+    --log-url-prefix http://cnsviewer2/placer/prod/home/kokoro-dedicated/build_artifacts/"${KOKORO_BUILD_ARTIFACTS_SUBDIR}"/github/grpc/
