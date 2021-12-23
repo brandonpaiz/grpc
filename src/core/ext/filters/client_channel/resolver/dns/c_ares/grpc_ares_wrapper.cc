@@ -822,7 +822,7 @@ void grpc_dns_lookup_ares_continue_after_check_localhost_and_ip_literals_locked(
         GRPC_ERROR_STR_TARGET_ADDRESS, name);
     goto error_cleanup;
   } else if (port.empty()) {
-    if (default_port == nullptr) {
+    if (default_port == nullptr || strlen(default_port) == 0) {
       error = grpc_error_set_str(
           GRPC_ERROR_CREATE_FROM_STATIC_STRING("no port in name"),
           GRPC_ERROR_STR_TARGET_ADDRESS, name);
@@ -913,7 +913,7 @@ static bool inner_resolve_as_ip_literal_locked(
     return false;
   }
   if (port->empty()) {
-    if (default_port == nullptr) {
+    if (default_port == nullptr || strlen(default_port) == 0) {
       gpr_log(GPR_ERROR,
               "No port or default port for %s while attempting to resolve as "
               "ip literal.",
@@ -976,7 +976,7 @@ static bool inner_maybe_resolve_localhost_manually_locked(
     return false;
   }
   if (port->empty()) {
-    if (default_port == nullptr) {
+    if (default_port == nullptr || strlen(default_port) == 0) {
       gpr_log(GPR_ERROR,
               "No port or default port for %s during manual localhost "
               "resolution check.",
@@ -1082,6 +1082,8 @@ grpc_ares_request* (*grpc_dns_lookup_ares)(
 static void grpc_cancel_ares_request_impl(grpc_ares_request* r) {
   GPR_ASSERT(r != nullptr);
   grpc_core::MutexLock lock(&r->mu);
+  GRPC_CARES_TRACE_LOG("request:%p grpc_cancel_ares_request ev_driver:%p", r,
+                       r->ev_driver);
   if (r->ev_driver != nullptr) {
     grpc_ares_ev_driver_shutdown_locked(r->ev_driver);
   }
@@ -1108,79 +1110,5 @@ void grpc_ares_cleanup(void) { ares_library_cleanup(); }
 grpc_error_handle grpc_ares_init(void) { return GRPC_ERROR_NONE; }
 void grpc_ares_cleanup(void) {}
 #endif  // GPR_WINDOWS
-
-/*
- * grpc_resolve_address_ares related structs and functions
- */
-
-typedef struct grpc_resolve_address_ares_request {
-  /** the pointer to receive the resolved addresses */
-  grpc_resolved_addresses** addrs_out;
-  /** currently resolving addresses */
-  std::unique_ptr<ServerAddressList> addresses;
-  /** closure to call when the resolve_address_ares request completes */
-  grpc_closure* on_resolve_address_done;
-  /** a closure wrapping on_resolve_address_done, which should be invoked when
-     the grpc_dns_lookup_ares operation is done. */
-  grpc_closure on_dns_lookup_done;
-  /* target name */
-  const char* name;
-  /* default port to use if none is specified */
-  const char* default_port;
-  /* pollset_set to be driven by */
-  grpc_pollset_set* interested_parties;
-  /* underlying ares_request that the query is performed on */
-  grpc_ares_request* ares_request = nullptr;
-} grpc_resolve_address_ares_request;
-
-static void on_dns_lookup_done(void* arg, grpc_error_handle error) {
-  grpc_resolve_address_ares_request* r =
-      static_cast<grpc_resolve_address_ares_request*>(arg);
-  delete r->ares_request;
-  grpc_resolved_addresses** resolved_addresses = r->addrs_out;
-  if (r->addresses == nullptr || r->addresses->empty()) {
-    *resolved_addresses = nullptr;
-  } else {
-    *resolved_addresses = static_cast<grpc_resolved_addresses*>(
-        gpr_zalloc(sizeof(grpc_resolved_addresses)));
-    (*resolved_addresses)->naddrs = r->addresses->size();
-    (*resolved_addresses)->addrs =
-        static_cast<grpc_resolved_address*>(gpr_zalloc(
-            sizeof(grpc_resolved_address) * (*resolved_addresses)->naddrs));
-    for (size_t i = 0; i < (*resolved_addresses)->naddrs; ++i) {
-      memcpy(&(*resolved_addresses)->addrs[i], &(*r->addresses)[i].address(),
-             sizeof(grpc_resolved_address));
-    }
-  }
-  grpc_core::ExecCtx::Run(DEBUG_LOCATION, r->on_resolve_address_done,
-                          GRPC_ERROR_REF(error));
-  delete r;
-}
-
-static void grpc_resolve_address_ares_impl(const char* name,
-                                           const char* default_port,
-                                           grpc_pollset_set* interested_parties,
-                                           grpc_closure* on_done,
-                                           grpc_resolved_addresses** addrs) {
-  grpc_resolve_address_ares_request* r =
-      new grpc_resolve_address_ares_request();
-  r->addrs_out = addrs;
-  r->on_resolve_address_done = on_done;
-  r->name = name;
-  r->default_port = default_port;
-  r->interested_parties = interested_parties;
-  GRPC_CLOSURE_INIT(&r->on_dns_lookup_done, on_dns_lookup_done, r,
-                    grpc_schedule_on_exec_ctx);
-  r->ares_request = grpc_dns_lookup_ares(
-      nullptr /* dns_server */, name, default_port, interested_parties,
-      &r->on_dns_lookup_done, &r->addresses, nullptr /* balancer_addresses */,
-      nullptr /* service_config_json */,
-      GRPC_DNS_ARES_DEFAULT_QUERY_TIMEOUT_MS);
-}
-
-void (*grpc_resolve_address_ares)(
-    const char* name, const char* default_port,
-    grpc_pollset_set* interested_parties, grpc_closure* on_done,
-    grpc_resolved_addresses** addrs) = grpc_resolve_address_ares_impl;
 
 #endif /* GRPC_ARES == 1 */
